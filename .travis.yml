@@ -1,0 +1,7 @@
+dist: xenial
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq gccgo-aarch64-linux-gnu golang-1.9
+script:
+  - for arch in [ "amd64", "arm64" ]; do ARCH=$arch make build; done
+  - for arch in [ "amd64", "arm64" ]; do ARCH=$arch make docker; done

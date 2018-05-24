@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ifeq ($(ARCH),)
+ARCH := amd64
+endif
+
+ifeq ($(REV),)
+REV := $(shell git rev-parse --short HEAD)
+endif
+
 GO := go
 pkgs  = $(shell $(GO) list ./... | grep -v vendor)
 
@@ -40,7 +48,7 @@ vet:
 
 build: assets
 	@echo ">> building binaries"
-	@./build/build.sh
+	REV=$(REV) ARCH=$(ARCH) ./build/build.sh
 
 assets:
 	@echo ">> building assets"
@@ -50,8 +58,9 @@ release:
 	@echo ">> building release binaries"
 	@./build/release.sh
 
-docker:
-	@docker build -t cadvisor:$(shell git rev-parse --short HEAD) -f deploy/Dockerfile .
+docker: build
+	@echo ">> building docker images"
+	REV=$(REV) ARCH=$(ARCH) ./build/docker.sh
 
 presubmit: vet
 	@echo ">> checking go formatting"
